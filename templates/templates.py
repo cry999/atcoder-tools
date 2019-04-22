@@ -27,3 +27,10 @@ class Templates:
             contest_name=contest_name,
             contest_num=contest_num,
             problems=problems)
+
+    def python(self, problem_name: str, rettyp: str, args:list) -> str:
+        return self.read(
+            'python3.j2',
+            problem_name=problem_name,
+            args=args,
+            rettyp=rettyp)

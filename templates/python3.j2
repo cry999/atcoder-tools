@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+def {{ problem_name }}({{ args|join(', ', attribute='name') }})->{{ rettyp }}:
+    # TODO: not implemented
+    pass
+
+
+if __name__ == "__main__":
+    {%- for arg in args  %}
+    {{ arg.name }} = {{ arg.input }}
+    {%- endfor %}
+
+    ans = {{ problem_name }}({{ args|join(', ', attribute='name') }})
+    print(ans)
+

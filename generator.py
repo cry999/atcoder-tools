@@ -138,8 +138,21 @@ def generate(argv: list) -> int:
     try:
         # problem files
         for filename in contest_info['files']:
+            problem = templates.Templates.default().python(
+                problem_name=filename,
+                rettyp='int',
+                args=[{
+                    'name': 'N',
+                    'type': 'int',
+                    'input': (lambda x: 'int(input())'),
+                }, {
+                    'name': 'S',
+                    'type': 'str',
+                    'input': (lambda x: 'input()'),
+                }]
+            )
             __write_files_if_not_exists(
-                contest_num_dir, filename + '.' + language['extension'])
+                contest_num_dir, filename + '.' + language['extension'], problem)
 
         # README.md
         __write_files_if_not_exists(
