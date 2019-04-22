@@ -1,16 +1,8 @@
-# from jinja2 import Template, Environment, FileSystemLoader
-
-# env = Environment(loader=FileSystemLoader('.'))
-# template = env.get_template('sample.tpl')
-
-# data = {'items': ['みかん', 'りんご', 'バナナ']}
-# disp_text = template.render(data)
-# print(disp_text)
 import jinja2 as j2
 import os.path as path
 
 BASE_DIR = path.abspath(path.dirname(__file__))
-TEMPLATES_DIR = path.join(BASE_DIR, 'templates')
+TEMPLATES_DIR = BASE_DIR
 
 
 class Templates:
