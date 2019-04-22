@@ -63,92 +63,86 @@ INVALID_LANGUAGE = ''''{language_name}' is invalid language name. belows are all
 )
 
 
-def generate(argv: list) -> int:
-    global USAGE
-    USAGE = USAGE.format(entrypoint=argv[0])
+def __write_files_if_not_exists(dirname: str, filename: str, content: str = ''):
+    '''指定されたディレクトリ直下に `filename` が存在しない時に限り、指定された内容のファイルを作成します。
+    :param dirname: ディレクトリ
+    :param filename: ファイル名
+    :param content: ファイルの内容
+    '''
+    filepath = os.path.join(dirname, filename)
+    if os.path.exists(filepath):
+        print('{} exists, so skip it.'.format(filepath))
+        return
 
-    # -----------------------------------------------------
-    # VALIDATE ARGUMENTS
-    # -----------------------------------------------------
+    with open(filepath, 'w') as f:
+        f.write(content)
+    print('{} is successfully created.'.format(filepath))
+
+
+def __validate_arguments(argv: list) -> int:
     if len(argv) < 3:
         print(USAGE)
         return 1
 
     # argv[1] is contest name
-    contest_name = argv[1].upper()
-    if contest_name not in CONTESTS:
+    if argv[1].upper() not in CONTESTS:
         print(USAGE)
-        print(INVALID_CONTEST_NAME.format(contest_name=contest_name))
+        print(INVALID_CONTEST_NAME.format(contest_name=argv[1].upper()))
         return 1
 
     # argv[2] is contest number
-    contest_num = argv[2]
 
     # argv[3] is used language. this is OPTIONAL
     if len(argv) == 4:
-        language_name = argv[3].lower()
-        if language_name not in LANGUAGES:
-            print(INVALID_LANGUAGE.format(language_name=language_name))
+        if argv[3].lower() not in LANGUAGES:
+            print(INVALID_LANGUAGE.format(language_name=argv[3].lower()))
             return 1
 
-        language = LANGUAGES[language_name]
-    else:
-        language = LANGUAGES['python']
+    return 0
+
+
+def generate(argv: list) -> int:
+    global USAGE
+    USAGE = USAGE.format(entrypoint=argv[0])
+
+    exit_code = __validate_arguments(argv)
+    if exit_code:
+        sys.exit(exit_code)
+
+    # -----------------------------------------------------
+    # VARIABLES
+    # -----------------------------------------------------
+    contest_name = argv[1].upper()
+    contest_num = argv[2]
+    language = LANGUAGES[argv[3].lower()] if len(
+        argv) > 3 else LANGUAGES['python']
+
+    contest_info = CONTESTS[contest_name]
+    contest_dir = os.path.join(BASE_DIR, contest_info['dirname'])
+    contest_num_dir = os.path.join(contest_dir, contest_num)
 
     # -----------------------------------------------------
     # MAIN LOGIC
     # -----------------------------------------------------
 
-    contest_info = CONTESTS[contest_name]
-
-    # create contest dir if not exists
-    contest_dir = os.path.join(BASE_DIR, contest_info['dirname'])
-    if not os.path.exists(contest_dir):
-        os.mkdir(contest_dir)
-
     # create contest-num dir if not exists
-    try:
-        contest_num_dir = os.path.join(contest_dir, contest_num)
-        if not os.path.exists(contest_num_dir):
-            os.mkdir(contest_num_dir)
-    except Exception as e:
-        print('cannot create {}'.format(contest_num_dir))
-        print(e)
-        try:
-            shutil.rmtree(contest_dir)
-        except:
-            pass
-        sys.exit(1)
+    if not os.path.exists(contest_num_dir):
+        os.makedirs(contest_num_dir)
 
     readme = templates.Templates.default().readme(
         contest_name,
         contest_num,
         contest_info['files'])
 
-    def write_files_if_not_exists(dirname: str, filename: str, content: str = ''):
-        '''指定されたディレクトリ直下に `filename` が存在しない時に限り、指定された内容のファイルを作成します。
-        :param dirname: ディレクトリ
-        :param filename: ファイル名
-        :param content: ファイルの内容
-        '''
-        filepath = os.path.join(dirname, filename)
-        if os.path.exists(filepath):
-            print('{} exists, so skip it.'.format(filepath))
-            return
-
-        with open(filepath, 'w') as f:
-            f.write(content)
-        print('{} is successfully created.'.format(filepath))
-
     # create files if not exists
     try:
         # problem files
         for filename in contest_info['files']:
-            write_files_if_not_exists(
+            __write_files_if_not_exists(
                 contest_num_dir, filename + '.' + language['extension'])
 
         # README.md
-        write_files_if_not_exists(
+        __write_files_if_not_exists(
             contest_num_dir, 'README.md', readme)
     except Exception as e:
         print('cannot create {}'.format(filename))
