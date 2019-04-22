@@ -2,6 +2,7 @@
 import sys
 import os
 import shutil
+import templates
 
 # -----------------------------------------------------
 # CONSTANTS
@@ -43,14 +44,6 @@ CONTESTS = {
         'contest_name': 'Tenka1 Programing Contest',
     }
 }
-README_TEMPLATE = '''# {contest_name} {contest_num}
-
-{contents}
-'''
-PROBLEM = '''## {problem}
-
-TODO: not implemented
-'''
 
 # error messages
 USAGE = '''USAGE: python {entrypoint} contest-name contest-num [language]'''.format(
@@ -127,13 +120,10 @@ def generate(argv: list) -> int:
             pass
         sys.exit(1)
 
-    # correct contents of README.md
-    readme = README_TEMPLATE.format(
-        contest_name=contest_info['contest_name'],
-        contest_num=contest_num,
-        contents='\n'.join(
-            map(lambda x: PROBLEM.format(problem=x), contest_info['files']))
-    )
+    readme = templates.Templates.default().readme(
+        contest_name,
+        contest_num,
+        contest_info['files'])
 
     def write_files_if_not_exists(dirname: str, filename: str, content: str = ''):
         '''指定されたディレクトリ直下に `filename` が存在しない時に限り、指定された内容のファイルを作成します。
