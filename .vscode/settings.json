@@ -2,5 +2,5 @@
     "files.associations": {
         "atcoder": "python"
     },
-    "python.pythonPath": "/Users/takeharak15/.local/share/virtualenvs/atcoder-tools-3sxP0uX1/bin/python"
+    "python.pythonPath": ".venv\\Scripts\\python.exe"
 }
